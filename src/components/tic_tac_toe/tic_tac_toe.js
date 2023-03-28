@@ -15,14 +15,21 @@ const COMBINATIONS_TO_WON = [
   [0, 4, 8],
   [2, 4, 6]
 ]
+
+const TIE_MESSAGE = 'Tie!'
+
 const TicTacToe = () => {
   const [plays, setPlays] = useState(Array(9).fill(''))
   const [player, setPlayer] = useState(true)
   const [message, setMessage] = useState('')
   const [isFinish, setIsFinish] = useState(false)
+  const [score, setScore] = useState({ O: 0, X: 0 })
 
   useEffect(() => {
-    message && setTimeout(() => onResetGame(), 5000)
+    if (message) {
+      setScore(whoWon(message))
+      setTimeout(() => onResetGame(), 1500)
+    }
   }, [message])
 
   const onPlay = (indx) => {
@@ -33,7 +40,7 @@ const TicTacToe = () => {
       const anyWon = checkIfAnyPlayerWon(tmp)
 
       anyWon && setMessage(`${PLAYERS[tmp[indx]]} winner!`)
-      !tmp.some((v) => v === '') && !anyWon && setMessage('Tie!')
+      !tmp.some((v) => v === '') && !anyWon && setMessage(TIE_MESSAGE)
 
       setPlays(tmp)
       setPlayer(!player)
@@ -63,13 +70,23 @@ const TicTacToe = () => {
         : 'tic_cell_player_2'
       : ''
 
+  const whoWon = (message) => {
+    const winner = message.split(' ')[0]
+
+    if (winner !== TIE_MESSAGE) {
+      score[winner] += 1
+    }
+
+    return score
+  }
+
   return (
     <div className="container">
       <div className="tic_header">
         <h1>Tic Tac Toe</h1>
         <button className="button" onClick={onResetGame}>
           <img
-            alt="Reset game"
+            alt="Reset Game"
             src="/icons/reset.svg"
             width="30px"
             height="30px"
@@ -92,23 +109,15 @@ const TicTacToe = () => {
           )
         })}
       </div>
+      <div className="tic_score">
+        <h1>O: {score.O}</h1>
+        <h1>X: {score.X}</h1>
+      </div>
       {message && (
         <div className="tic_result">
           <div className="tic_result_animation">
             <h1>{message}</h1>
           </div>
-        </div>
-      )}
-      {message && (
-        <div className="tic_action">
-          <button className="button" onClick={onResetGame}>
-            <img
-              alt="Reset game"
-              src="/icons/close.svg"
-              width="40px"
-              height="40px"
-            />
-          </button>
         </div>
       )}
     </div>
